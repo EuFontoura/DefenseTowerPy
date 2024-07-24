@@ -1,5 +1,7 @@
 import pygame as pg
+import json
 from enemy import Enemy
+from world import World
 import constants as c
 
 # initialise pygame
@@ -13,19 +15,25 @@ screen = pg.display.set_mode((c.SCREEN_WIDTH, c.SCREEN_HEIGHT))
 pg.display.set_caption('Tower Defense')
 
 # load images
+#map
+map_image = pg.image.load('levels/level.png').convert_alpha()
+#enemies
 enemy_image = pg.image.load('assets/images/enemies/enemy_1.png').convert_alpha()
+
+# load json data for level
+with open('levels/level.tmj') as file:
+    world_data = json.load(file)
+
+
+#create world
+world = World(world_data, map_image)
+world.process_data()
 
 # create groups
 enemy_group = pg.sprite.Group()
 
-waypoints = [
-    (100, 100),
-    (400, 200),
-    (400, 100),
-    (200, 300)
-]
 
-enemy = Enemy((waypoints), enemy_image)
+enemy = Enemy((world.waypoints), enemy_image)
 enemy_group.add(enemy)
 
 # game loop
@@ -36,8 +44,8 @@ while run:
 
     screen.fill("grey100")
 
-    # draw enemy path
-    pg.draw.lines(screen, 'grey0', False, waypoints)
+    #draw level
+    world.draw(screen)
 
     # update groups
     enemy_group.update()

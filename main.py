@@ -24,7 +24,10 @@ selected_turret = None
 #map
 map_image = pg.image.load('levels/level.png').convert_alpha()
 # turret spritesheets
-turret_sheet = pg.image.load('assets/images/turrets/turret_1.png').convert_alpha()
+turret_spritesheets = []
+for x in range(1, c.TURRET_LEVELS + 1):
+    turret_sheet = pg.image.load(f'assets/images/turrets/turret_{x}.png').convert_alpha()
+    turret_spritesheets.append(turret_sheet)
 #individual turret image for mouse cursor
 cursor_turret = pg.image.load('assets/images/turrets/cursor_turret.png').convert_alpha()
 #enemies
@@ -32,6 +35,7 @@ enemy_image = pg.image.load('assets/images/enemies/enemy_1.png').convert_alpha()
 #buttons
 buy_turret_image = pg.image.load('assets/images/buttons/buy_turret.png').convert_alpha()
 cancel_image = pg.image.load('assets/images/buttons/cancel.png').convert_alpha()
+upgrade_turret_image = pg.image.load('assets/images/buttons/upgrade_turret.png').convert_alpha()
 
 # load json data for level
 with open('levels/level.tmj') as file:
@@ -51,7 +55,7 @@ def create_turret(mouse_pos):
                 space_is_free = False
         # if it is a free space then create turret
         if space_is_free == True:
-            new_turret = Turret(turret_sheet, mouse_tile_x, mouse_tile_y)
+            new_turret = Turret(turret_spritesheets, mouse_tile_x, mouse_tile_y)
             turret_group.add(new_turret)
 
 def select_turret(mouse_pos):
@@ -80,6 +84,7 @@ enemy_group.add(enemy)
 # create buttons
 turret_button = Button(c.SCREEN_WIDTH + 30, 120, buy_turret_image, True)
 cancel_button = Button(c.SCREEN_WIDTH + 50, 180, cancel_image, True)
+upgrade_button = Button(c.SCREEN_WIDTH + 5, 180, upgrade_turret_image, True)
 
 # game loop
 run = True
@@ -127,6 +132,12 @@ while run:
             screen.blit(cursor_turret, cursor_rect)
         if cancel_button.draw(screen):
             placing_turrets = False
+    # if a turret is selected then show the upgrade button
+    if selected_turret:
+        #if a turret can be upgraded then show the upgrade button
+        if selected_turret.upgrade_level < c.TURRET_LEVELS:
+            if upgrade_button.draw(screen):
+                selected_turret.upgrade()
 
     # event handler
     for event in pg.event.get():

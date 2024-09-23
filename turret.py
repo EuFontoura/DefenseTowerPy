@@ -4,7 +4,7 @@ import constants as c
 from turret_data import TURRET_DATA
 
 class Turret(pg.sprite.Sprite):
-    def __init__(self, sprite_sheets, tile_x, tile_y):
+    def __init__(self, sprite_sheets, tile_x, tile_y, shot_fx):
         pg.sprite.Sprite.__init__(self)
         self.upgrade_level = 1
         self.range = TURRET_DATA[self.upgrade_level - 1].get("range")
@@ -19,6 +19,8 @@ class Turret(pg.sprite.Sprite):
         # calculate center coordinates
         self.x = (self.tile_x + 0.5) * c.TILE_SIZE
         self.y = (self.tile_y + 0.5) * c.TILE_SIZE
+        #shot sound effect
+        self.shot_fx = shot_fx
 
         # animation variables
         self.sprite_sheets = sprite_sheets
@@ -51,13 +53,13 @@ class Turret(pg.sprite.Sprite):
             animation_list.append(temp_img)
         return animation_list
     
-    def update(self, enemy_group):
+    def update(self, enemy_group, world):
         # if target picked, play firin animation
         if self.target:
             self.play_animation()
         else:
             # search for new target once turret has cooled down
-            if pg.time.get_ticks() - self.last_shot > self.cooldown:
+            if pg.time.get_ticks() - self.last_shot > (self.cooldown / world.game_speed):
                 self.pick_target(enemy_group)
 
     def pick_target(self, enemy_group):
@@ -75,6 +77,8 @@ class Turret(pg.sprite.Sprite):
                     self.angle = math.degrees(math.atan2(-y_dist, x_dist))
                     # damage enemy
                     self.target.health -= c.DAMAGE
+                    # play sound effect
+                    self.shot_fx.play()
                     break
     
     def play_animation(self):

@@ -1,0 +1,6 @@
+*.py linguist-language=Python
+*.html linguist-vendored
+*.tex linguist-vendored
+*.toc linguist-vendored
+*.pkg linguist-vendored
+*.zip linguist-vendored
